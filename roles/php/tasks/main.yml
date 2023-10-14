@@ -1,0 +1,34 @@
+---
+- name: Install a list of packages
+  apt:
+    pkg:
+    - php
+    - php-curl
+    - php-fpm
+    - php-intl
+    - php-mysql
+    - php-sqlite3
+    - php-xml
+    update_cache: yes
+
+- name: Install Composer
+  shell: |
+    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+    php composer-setup.php
+    php -r "unlink('composer-setup.php');"
+    mv composer.phar /usr/local/bin/composer
+  register: issue
+  failed_when: issue.rc == 1
+  args:
+    creates: /usr/local/bin/composer
+
+- name: Install symfony/demo
+  shell: |
+    echo yes | composer create-project symfony/symfony-demo /var/www/demo
+    cd /var/www/demo && echo yes | composer update
+    chown -R www-data:www-data /var/www/demo
+  register: issue
+  failed_when: issue.rc == 1
+  args:
+    creates: /var/www/demo/public/index.php

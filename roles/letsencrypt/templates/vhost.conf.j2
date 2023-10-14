@@ -1,0 +1,35 @@
+# HTTP redirect
+server {
+    listen 80;
+    server_name {{ acme_domain_name }};
+
+    location / {
+        return 301 https://{{ acme_domain_name }}$request_uri;
+    }
+}
+
+server {
+    listen              443 ssl http2;
+    server_name         {{ acme_domain_name }};
+    root                /var/www/demo/public;
+    set $base           /var/www/demo/public;
+    index               index.php index.html index.htm index.nginx-debian.html;
+    ssl_certificate     /root/.acme.sh/{{ acme_domain_name }}/{{ acme_domain_name }}.cer;
+    ssl_certificate_key /root/.acme.sh/{{ acme_domain_name }}/{{ acme_domain_name }}.key;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location                ~* \.php$ {
+    try_files               $uri = 404;
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    fastcgi_pass            unix:/var/run/php/php{{ php_version }}-fpm.sock;
+    fastcgi_index           index.php;
+    fastcgi_param           SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    include                 fastcgi_params;
+    }
+
+  # additional config
+    include nginxconfig.io/*.conf;
+}

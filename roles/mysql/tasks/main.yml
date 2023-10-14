@@ -1,0 +1,40 @@
+---
+- name: Install a list of packages
+  apt:
+    pkg:
+    - mysql-server
+    - python3-mysqldb
+    update_cache: yes
+
+- name: Create a new database for symfony/demo
+  community.mysql.mysql_db:
+    name: symfony
+    state: present
+
+- name: Create database user for symfony/demo
+  community.mysql.mysql_user:
+    name: symfony
+    password: 123456
+    priv: 'symfony.*:ALL'
+    state: present
+
+- name: Disable sqlite DB connection
+  lineinfile:
+    dest: /var/www/demo/.env
+    regexp: '(DATABASE_URL=sqlite.*)'
+    line: '# \1'
+    backrefs: yes
+
+- name: Add MySQL DB connection
+  lineinfile:
+    dest: /var/www/demo/.env
+    line: 'DATABASE_URL=mysql://symfony:123456@127.0.0.1:3306/symfony'
+    insertbefore: '###< doctrine/doctrine-bundle ###'
+
+- name: Make DB migrations
+  shell: |
+    /var/www/demo/bin/console doctrine:schema:create
+    echo yes | /var/www/demo/bin/console doctrine:fixtures:load
+  register: issue
+  failed_when: issue.rc == 1
+  changed_when: false

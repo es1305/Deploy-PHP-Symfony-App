@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+
+  roles:
+    - common
+    - php
+    - mysql
+    - nginx
+    - letsencrypt

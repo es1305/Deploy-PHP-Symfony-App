@@ -1,0 +1,11 @@
+---
+- name: Check Nginx status
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Reload Nginx
+  service:
+    name: nginx
+    state: reloaded
