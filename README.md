@@ -1,4 +1,4 @@
-Конфигурационный файл [Terraform](https://www.terraform.io) и роли [Ansible](https://www.ansible.com) для выполнения задания **"DEV 07: Деплой приложений. PHP Symfony".**
+Конфигурационный файл [Terraform](https://www.terraform.io) и роли [Ansible](https://www.ansible.com) для выполнения задания **"Деплой приложений. PHP Symfony".**
 
 Для запуска необходим файл `variables.tf` типа
 ```
